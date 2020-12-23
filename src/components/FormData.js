@@ -1,14 +1,22 @@
 import React, { useState } from "react";
 
 const initialFormData = Object.freeze({
-  name: "",
   age: "",
-  address: ""
+  address: "",
+  lastName: "",
+  firstName: "",
+  nationality: "",
+  residence: "",
+  nin: ""
 });
 
-const FormData = ({ onSubmit, captureFile }) => {
+const FormData = ({
+  onSubmit,
+  captureImageFile,
+  captureDocument,
+  getResult
+}) => {
   const [formData, updateFormData] = useState(initialFormData);
-  //   const [buffer, setBuffer] = useState("");
 
   const handleChange = e => {
     updateFormData({
@@ -16,75 +24,152 @@ const FormData = ({ onSubmit, captureFile }) => {
       // Trimming any whitespace
       [e.target.name]: e.target.value.trim()
     });
+    getResult(formData);
   };
 
-  //   const handleSubmit = e => {
-  //     e.preventDefault();
-  //     console.log(formData);
-  //     // ... submit to API or something
-  //   };
-
-  /*const captureFile = event => {
-    event.preventDefault();
-    console.log("file Uploaded");
-    const file = event.target.files[0];
-    const reader = new window.FileReader();
-    reader.readAsArrayBuffer(file);
-    try {
-      reader.onloadend = () => {
-        setBuffer(Buffer(reader.result));
-        console.log("buffer:->", buffer);
-      };
-    } catch (error) {
-      console.error(error);
-    }
-  };*/
-
   return (
-    /* <>
-      <button onClick={handleSubmit}>Submit</button>
-    </> */
-    <form className="contact-form" onSubmit={onSubmit}>
-      <div className="form-group">
-        <label id="name">Name: </label>
-        <input
-          type="text "
-          className="form-control-inline"
-          name="name"
-          id="name"
-          onChange={handleChange}
-        />
+    <form onSubmit={onSubmit}>
+      <br />
+      <div className="row">
+        <div className="col-md-3">
+          <label id="firstName">First Name </label>
+        </div>
+        <div className="col-md-9">
+          <input
+            id="firstName"
+            name="firstName"
+            type="text"
+            className="form-control"
+            placeholder="First name"
+            onChange={handleChange}
+          />
+        </div>
       </div>
-      <div className="form-group">
-        <label for="age">Date of Birth: </label>
-        <input
-          type="date"
-          name="age"
-          id="age"
-          className="form-control-inline"
-          placeholder="Date of Birth"
-          onChange={handleChange}
-        />
-      </div>
-      <div className="form-group">
-        <label for="exampleInputAddress">Address: </label>
-        <input
-          type="email"
-          className="form-control-inline"
-          id="exampleInputAddress"
-          name="address"
-          onChange={handleChange}
-          placeholder="Enter address"
-        />
-      </div>
-      <div className="form-group">
-        <input
-          type="file"
-          className="form-control-inline"
-          onChange={captureFile}
-        />
-      </div>
+      <br />
+      <div className="row">
+        <div className="col-md-3">
+          <label id="lastName">Last Name </label>
+        </div>
 
+        <div className="col-md-9">
+          <input
+            id="lastName"
+            name="lastName"
+            type="text"
+            className="form-control"
+            placeholder="Last name"
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+      <hr />
+      <div className="row">
+        <div className="col-md-3">
+          <label id="Nationality">Nationality </label>
+        </div>
+        <div className="col-md-9">
+          <input
+            id="Nationality"
+            name="nationality"
+            type="text"
+            className="form-control"
+            placeholder="Nationality"
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+      <br />
+      <div className="row">
+        <div className="col-md-3">
+          <label id="Nationality">National ID No </label>
+        </div>
+        <div className="col-md-9">
+          <input
+            type="text"
+            name="nin"
+            className="form-control"
+            placeholder="NIN"
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+      <hr />
+      <div className="row">
+        <div className="col-md-3">
+          <label id="age">Date of Birth</label>
+        </div>
+        <div className="col-md-9">
+          <input
+            type="date"
+            name="age"
+            className="form-control"
+            placeholder="Date of Birth"
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+      <br />
+      <div className="row">
+        <div className="col-md-3">
+          <label for="exampleInputAddress">Email Address</label>
+        </div>
+        <div className="col-md-9">
+          <input
+            type="address"
+            name="address"
+            id="exampleInputAddress"
+            className="form-control"
+            placeholder="Enter address"
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+      <br />
+      <div className="row">
+        <div className="col-md-3">
+          <label id="residence">Residence</label>
+        </div>
+        <div className="col-md-9">
+          <input
+            id="residence"
+            type="text"
+            name="residence"
+            className="form-control"
+            placeholder="Residence"
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+      <br />
+      <div className="row">
+        <div className="col-md-3">
+          <label id="uploadDocumet">Upload Proof Document</label>
+        </div>
+        <div className="col-md-9">
+          <input
+            type="file"
+            id="uploadDocument"
+            className="form-control-inline"
+            onChange={captureDocument}
+          />
+        </div>
+      </div>
+      <br />
+      <div className="row">
+        <div className="col-md-3">
+          <label id="uploadID">Upload User Photo</label>
+        </div>
+
+        <div className="col-md-9">
+          <input
+            type="file"
+            id="uploadID"
+            className="form-control-inline"
+            onChange={captureImageFile}
+          />
+        </div>
+      </div>
+      <hr />
       <input type="submit" value="submit" />
     </form>
   );

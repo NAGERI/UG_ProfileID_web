@@ -1,5 +1,6 @@
 // Defining onstamts that will be used in the program
 const ipfsClient = require("ipfs-http-client");
+
 const ipfs = ipfsClient({
   host: "ipfs.infura.io",
   port: 5001,
@@ -8,8 +9,7 @@ const ipfs = ipfsClient({
 // leaving out the arguments will default to these values
 
 // ISPF url
-const documentUrl =
-  "https://ipfs.infura.io/ipfs/QmQSNATjQvoXtXXFqQ36wC1DX9fGYhgx5bRSvhJm5mqjSw";
+// const documentUrl =   "https://ipfs.infura.io/ipfs/QmQSNATjQvoXtXXFqQ36wC1DX9fGYhgx5bRSvhJm5mqjSw";
 
 /**
  * Checks if an element’s value can be saved (e.g. not an unselected checkbox).
@@ -111,4 +111,4 @@ const form = document.getElementsByClassName("contact-form")[0];
 form.addEventListener("submit", handleFormSubmit);
 //  <img src="https://ipfs.infura.io/ipfs/QmSgjbk1r4D4DBHVrPaoGcrMLvQBE7SF5Q1r9rardakBrf"/>
 */
-export { ipfs, documentUrl };
+export { ipfs };

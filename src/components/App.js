@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import Web3 from "web3";
 import { FormData } from "./FormData";
-import { ipfs, documentUrl } from "./constants";
+// import { request } from "./mailJetEmail";
+import { ipfs } from "./constants";
 import "./App.css";
 
 import Document from "../abis/Document.json";
+// import { send } from "./mailJetEmail";
 
 class App extends Component {
   async componentWillMount() {
@@ -16,13 +18,15 @@ class App extends Component {
     super(props);
 
     this.state = {
+      imageHash: "",
       documentHash: "",
       contract: null,
       web3: null,
-      buffer: null,
-      account: null
+      imageBuffer: null,
+      documentbuffer: null,
+      account: null,
+      inputResult: ""
     };
-    // this.handleAddressChange = this.handleAddressChange.bind(this);
   }
 
   async loadWeb3() {
@@ -45,12 +49,15 @@ class App extends Component {
     this.setState({ account: accounts[0] });
     const networkId = await web3.eth.net.getId();
     const networkData = Document.networks[networkId];
-    // console.log(networkData," ------------ ", networkId)
+    console.log(networkData);
     if (networkData) {
       const contract = web3.eth.Contract(Document.abi, networkData.address);
       this.setState({ contract });
-      const DocumentHash = await contract.methods.get().call();
-      this.setState({ documentHash: DocumentHash });
+      const ImageHash = await contract.methods.getImage().call();
+      this.setState({ imageHash: ImageHash });
+
+      // the profile details
+      console.log(await contract.methods.getProfile().call());
     } else {
       window.alert(
         "Smart contract not deployed to detected network or start Local blockchain (Ganache). "
@@ -62,22 +69,61 @@ class App extends Component {
     event.preventDefault();
     console.log("Submitting file to ipfs...");
 
-    ipfs.add(this.state.buffer, (error, result) => {
-      console.log("Ipfs result", result);
+    // send();
+
+    ipfs.add(this.state.imageBuffer, (error, result) => {
+      console.log("Ipfs image result", result);
       if (error) {
         console.error(error);
         return;
       }
       this.state.contract.methods
-        .set(result[0].hash)
+        .setImage(result[0].hash)
+        .send({ from: this.state.account })
+        .then(r => {
+          return this.setState({ imageHash: result[0].hash });
+        });
+    });
+
+    ipfs.add(this.state.documentbuffer, (error, result) => {
+      console.log("Ipfs document result", result);
+      if (error) {
+        console.error(error);
+        return;
+      }
+      this.state.contract.methods
+        .setDocument(result[0].hash)
         .send({ from: this.state.account })
         .then(r => {
           return this.setState({ documentHash: result[0].hash });
         });
     });
+
+    this.state.contract.methods
+      .setProfile(JSON.stringify(this.state.inputResult))
+      .send({ from: this.state.account });
+
+    window.alert("Form Submitted Susscessfully");
+    event.target.reset();
   };
 
-  captureFile = event => {
+  // failing to upload to IPFS
+  captureDocument = event => {
+    event.preventDefault();
+    const file = event.target.files[0];
+    const docReader = new window.FileReader();
+    docReader.readAsArrayBuffer(file);
+    try {
+      docReader.onloadend = () => {
+        this.setState({ documentbuffer: Buffer(docReader.result) });
+        console.log("Document buffer", this.state.documentbuffer);
+      };
+    } catch (error) {
+      console.error("Failed to upload -> ", error);
+    }
+  };
+
+  captureImageFile = event => {
     event.preventDefault();
     console.log("file Uploaded");
     const file = event.target.files[0];
@@ -85,12 +131,16 @@ class App extends Component {
     reader.readAsArrayBuffer(file);
     try {
       reader.onloadend = () => {
-        this.setState({ buffer: Buffer(reader.result) });
-        console.log("buffer", this.state.buffer);
+        this.setState({ imageBuffer: Buffer(reader.result) });
+        console.log("Image buffer", this.state.imageBuffer);
       };
     } catch (error) {
       console.error(error);
     }
+  };
+
+  getResult = data => {
+    this.setState({ inputResult: data });
   };
 
   render() {
@@ -111,25 +161,17 @@ class App extends Component {
             <main role="main" className="col-lg-12 d-flex text-center">
               <div className="content mr-auto ml-auto">
                 <img
-                  src={
-                    this.state.documentHash
-                      ? `https://ipfs.infura.io/ipfs/${this.state.documentHash}`
-                      : documentUrl
-                  }
+                  src={`https://ipfs.infura.io/ipfs/${this.state.imageHash}`}
                   className="App-logo"
-                  alt="document"
+                  alt="User_Picture"
                 />
-                <div className="card">
-                  <div className="container container-fluid">
-                    <form onChange={this.onSubmit}>
-                      <FormData
-                        captureFile={this.captureFile}
-                        onSubmit={this.onSubmit}
-                      />
-
-                      {/* <input type="submit" value="submit" /> */}
-                    </form>
-                  </div>
+                <div className="card, container-fluid">
+                  <FormData
+                    captureImageFile={this.captureImageFile}
+                    captureDocument={this.captureDocument}
+                    onSubmit={this.onSubmit}
+                    getResult={this.getResult}
+                  />
                 </div>
               </div>
             </main>
